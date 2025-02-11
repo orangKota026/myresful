@@ -1,6 +1,6 @@
 {
     "name": "myresful",
-    "version": "1.0.0",
+    "version": "1.0.0-beta.2",
     "description": "A package for handling API requests with built-in version check",
     "main": "dist/index.js",
     "scripts": {
@@ -17,6 +17,10 @@
     "license": "ISC",
     "dependencies": {
         "axios": "^1.7.9"
+    },
+    "peerDependencies": {
+        "quasar": "^2.17.7",
+        "vue": "^3.5.13"
     },
     "devDependencies": {
         "@babel/cli": "^7.26.4",
