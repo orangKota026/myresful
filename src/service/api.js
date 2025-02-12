@@ -181,8 +181,6 @@ const remove = (args) => makeRequest('delete', { ...args, loading: true, errorNo
 api.interceptors.response.use(
   (response) =>
   {
-    console.log(response);
-
     if (response.config?.loading) hideLoading();
     return response;
   },
