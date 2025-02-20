@@ -86,10 +86,9 @@ const errorHandler = async (error) =>
 
     if (errorData && typeof errorData === 'object')
     {
-      if (errorData.statusCode === 401 && errorData.message === 'Token Expired')
+      if (errorData.statusCode === 401)
       {
         User.logout();
-        return;
       }
 
       message = '';
@@ -109,6 +108,8 @@ const errorHandler = async (error) =>
     if (!error.config._notified)
     {
       Notify.create({
+        progress: true,
+        timeout: 2500,
         type: 'negative',
         position: 'top-right',
         message: message || error.message,
