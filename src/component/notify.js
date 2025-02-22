@@ -60,7 +60,7 @@ const MyNotify = (message, type = 'info', timeout = 3000, position = 'top-right'
         white-space: normal;
         }
         
-        .material-icons {
+        .myicons {
             font-size: 20px;
             color: #fff;
             flex-shrink: 0; 
@@ -124,7 +124,7 @@ const MyNotify = (message, type = 'info', timeout = 3000, position = 'top-right'
   const notification = document.createElement('div');
   notification.classList.add('custom-mynotify', `mynotify-${type}`);
   notification.innerHTML = `
-      <span class="material-icons">${icons[type] || 'info'}</span>
+      <span class="myicons">${icons[type] || 'info'}</span>
       <div class="mynotify-message">${message}</div>
       <div class="progress-bar" style="animation-duration: ${timeout}ms;"></div>
     `;
