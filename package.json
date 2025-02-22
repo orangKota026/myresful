@@ -1,15 +1,19 @@
 {
     "name": "myresful",
-    "version": "1.0.0-beta.12",
+    "version": "1.0.0-beta.13",
     "description": "A package for handling API requests with built-in version check",
     "main": "dist/index.js",
     "browser": "dist/myresful.umd.js",
     "module": "dist/myresful.esm.js",
     "scripts": {
-        "build": "babel src -d dist",
+        "build": "babel src -d dist && npm run rollup",
         "start": "node dist/index.js",
         "rollup": "npx rollup -c",
-        "test": "echo \"Write tests!\""
+        "test": "echo \"Write tests!\"",
+        "preversion": "npm run build",
+        "version": "npm run build && git add .",
+        "postversion": "git commit -m \"chore(release): bump version to $(node -p -e \"require('./package.json').version\")\" && git tag v$(node -p -e \"require('./package.json').version\") && git push && git push --tags",
+        "prepublishOnly": "npm run build"
     },
     "repository": {
         "type": "git",
