@@ -170,7 +170,8 @@ const makeRequest = async (method, args) =>
   } catch (error)
   {
     if (loading) hideLoading();
-    return errorHandler(error);
+    await errorHandler(error);
+    return Promise.reject(error);
   }
 };
 
