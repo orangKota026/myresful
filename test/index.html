@@ -17,7 +17,7 @@
 	</head>
 	<body>
 		<h1>Test MyResful API</h1>
-		<button onclick="fetchData()">Ambil Data</button>
+		<button onclick="fetchData()">Fetch Data</button>
 
 		<!-- Add a div to display the results -->
 		<pre id="result"></pre>
@@ -35,8 +35,8 @@
 					const response = await myresful.api.get();
 					document.getElementById("result").innerText = JSON.stringify(response.data, null, 2);
 				} catch (error) {
-					console.error("Error saat mengambil data:", error);
-					document.getElementById("result").innerText = "Gagal mengambil data!";
+					console.error("Error while retrieving data:", error);
+					document.getElementById("result").innerText = "Failed to fetch data!";
 				}
 			}
 		</script>

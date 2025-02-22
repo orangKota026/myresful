@@ -31,7 +31,7 @@ yarn add myresful
 
 ### 1. Import the Package
 
-Use Myresful to send an API request. Here's an example of making a GET request:
+Use `myresful.api` to send an API request and `myresful.user` for user authentication handling.
 
 ```javascript
 import myresful from "myresful";
@@ -41,7 +41,7 @@ const apiUrl = "https://api.example.com/data";
 
 async function getData() {
 	try {
-		const response = await myresful.get({
+		const response = await myresful.api.get({
 			path: apiUrl,
 			headers: {
 				"Content-Type": "application/json"
@@ -64,7 +64,7 @@ Myresful supports multiple HTTP methods:
 #### GET Request
 
 ```javascript
-const response = await myresful.get({
+const response = await myresful.api.get({
 	path: apiUrl,
 	params: {
 		search: "query"
@@ -75,7 +75,7 @@ const response = await myresful.get({
 #### POST Request
 
 ```javascript
-const response = await myresful.post({
+const response = await myresful.api.post({
 	path: apiUrl,
 	data: {
 		name: "John Doe",
@@ -90,7 +90,7 @@ const response = await myresful.post({
 #### PUT Request
 
 ```javascript
-const response = await myresful.put({
+const response = await myresful.api.put({
 	path: apiUrl,
 	data: {
 		id: 1,
@@ -102,7 +102,7 @@ const response = await myresful.put({
 #### PATCH Request
 
 ```javascript
-const response = await myresful.patch({
+const response = await myresful.api.patch({
 	path: apiUrl,
 	data: {
 		status: "updated"
@@ -113,7 +113,7 @@ const response = await myresful.patch({
 #### DELETE Request
 
 ```javascript
-const response = await myresful.remove({
+const response = await myresful.api.remove({
 	path: apiUrl
 });
 ```
@@ -131,7 +131,7 @@ const response = await myresful.remove({
 Example with full options:
 
 ```javascript
-const response = await myresful.get({
+const response = await myresful.api.get({
 	path: apiUrl,
 	params: { page: 1, limit: 10 },
 	headers: { Authorization: "Bearer token" },
@@ -145,11 +145,61 @@ Myresful provides a built-in error handler. If a request fails, it automatically
 
 ```javascript
 try {
-	const response = await myresful.get({ path: apiUrl });
+	const response = await myresful.api.get({ path: apiUrl });
 	console.log(response.data);
 } catch (error) {
 	console.error("API Error:", error);
 }
+```
+
+### 3. Authentication Management with `myresful.user`
+
+`myresful.user` provides methods for managing authentication status and user roles.
+
+#### Check if the user is authenticated:
+
+```javascript
+if (myresful.user.isAuthenticated()) {
+	console.log("User is logged in");
+} else {
+	console.log("User is not logged in");
+}
+```
+
+#### Get current user data:
+
+```javascript
+const user = myresful.user.get();
+console.log(user);
+```
+
+#### Get user roles:
+
+```javascript
+const roles = myresful.user.getRoles();
+console.log("User roles:", roles);
+```
+
+#### Check if the user has a specific role:
+
+```javascript
+if (myresful.user.hasRoles(["admin", "editor"])) {
+	console.log("User has required roles");
+} else {
+	console.log("User does not have required roles");
+}
+```
+
+#### Logout the user:
+
+```javascript
+myresful.user.logout();
+```
+
+or redirect after logout:
+
+```javascript
+myresful.user.logout("home");
 ```
 
 ## Dependencies
