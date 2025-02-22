@@ -1,6 +1,6 @@
 import axios from 'axios';
 import User from "./user.js";
-import Notify from "../component/notify.js";
+import MyNotify from "../component/notify.js";
 import { showLoading, hideLoading } from '../component/loading.js';
 
 const baseURL = (typeof process !== "undefined" && process?.env)
@@ -75,8 +75,6 @@ const errorHandler = async (error) =>
 
   if (error.config?.errorHandler)
   {
-    let message = error.message;
-
     const errorData = error.response?.data;
 
     if (errorData && typeof errorData === 'object')
@@ -86,24 +84,35 @@ const errorHandler = async (error) =>
         User.logout();
       }
 
-      message = '';
-      if (errorData?.error) message += `<div class="text-bold">${errorData.error}</div>`;
-      if (errorData?.message)
+      if (!error.config._notified)
       {
         if (Array.isArray(errorData.message))
         {
-          message += errorData.message.map((el) => `<li>${el}</li>`).join('');
+          errorData.message.forEach((msg) =>
+          {
+            MyNotify(
+              `${errorData.error ? `<b>${errorData.error}</b><br>` : ''}${msg}`,
+              'negative'
+            );
+          });
         } else
         {
-          message += `<div class="text-caption text-white">${errorData?.message}</div>`;
+          MyNotify(
+            `${errorData.error ? `<b>${errorData.error}</b><br>` : ''}${errorData.message || error.message || 'Terjadi kesalahan'}`,
+            'negative'
+          );
         }
+
+        error.config._notified = true;
       }
     }
-
-    if (!error.config._notified)
+    else if (error.message === "Network Error" || error.code === "ECONNABORTED")
     {
-      Notify(message || error.message, 'negative');
-      error.config._notified = true;
+      MyNotify("Failed to connect to server. Check your connection.", "negative");
+    }
+    else
+    {
+      MyNotify(error.message || "An unknown error occurred.", "negative");
     }
   }
 

@@ -32,7 +32,7 @@
 					}
 
 					// Call API with MyResful
-					const response = await myresful.api.get();
+					const response = await myresful.api.post({ path: "http://localhost:7001/auth/verify", data: { token: "123456" } });
 					document.getElementById("result").innerText = JSON.stringify(response.data, null, 2);
 				} catch (error) {
 					console.error("Error while retrieving data:", error);
