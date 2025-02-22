@@ -1,6 +1,6 @@
 {
     "name": "myresful",
-    "version": "1.0.0-beta.13",
+    "version": "1.0.0-beta.14",
     "description": "A package for handling API requests with built-in version check",
     "main": "dist/index.js",
     "browser": "dist/myresful.umd.js",
@@ -12,7 +12,7 @@
         "test": "echo \"Write tests!\"",
         "preversion": "npm run build",
         "version": "npm run build && git add .",
-        "postversion": "git commit -m \"chore(release): bump version to $(node -p -e \"require('./package.json').version\")\" && git tag v$(node -p -e \"require('./package.json').version\") && git push && git push --tags",
+        "postversion": "git commit -m \"chore(release): bump version to $(node -p -e \"require('./package.json').version\")\" && git tag v$(node -p -e \"require('./package.json').version\") && git push",
         "prepublishOnly": "npm run build"
     },
     "repository": {
