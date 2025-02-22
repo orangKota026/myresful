@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="id">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Test MyResful</title>
+
+		<script>
+			window.API_BASE_URL = "http://localhost:7001/"; // Dummy API for testing
+		</script>
+
+		<!-- Load Axios -->
+		<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+		<!-- Load MyResful (Make sure this path is correct) -->
+		<script src="../dist/myresful.umd.js"></script>
+	</head>
+	<body>
+		<h1>Test MyResful API</h1>
+		<button onclick="fetchData()">Ambil Data</button>
+
+		<!-- Add a div to display the results -->
+		<pre id="result"></pre>
+
+		<script>
+			async function fetchData() {
+				try {
+					// Make sure MyResful is defined
+					if (typeof myresful === "undefined") {
+						console.error("myresful not found! Make sure dist/myresful.umd.js is loaded.");
+						return;
+					}
+
+					// Call API with MyResful
+					const response = await myresful.api.get();
+					document.getElementById("result").innerText = JSON.stringify(response.data, null, 2);
+				} catch (error) {
+					console.error("Error saat mengambil data:", error);
+					document.getElementById("result").innerText = "Gagal mengambil data!";
+				}
+			}
+		</script>
+	</body>
+</html>

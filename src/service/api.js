@@ -1,9 +1,21 @@
 import axios from 'axios';
-import { Notify, Loading, QSpinnerHourglass } from 'quasar';
 import User from "./user.js";
+import Notify from "../component/notify.js";
+import { showLoading, hideLoading } from '../component/loading.js';
 
-const api = axios.create({ baseURL: process.env.VITE_APP_API || process.env.API });
+const baseURL = (typeof process !== "undefined" && process?.env)
+  ? (process.env.VITE_APP_API || process.env.API)
+  : (typeof window !== "undefined" && window.API_BASE_URL)
+    ? window.API_BASE_URL
+    : '';
 
+const api = axios.create({ baseURL });
+
+/**
+ * Serialize path to ensure there are no double slashes in the URL.
+ * @param {string} path - URL or API endpoint.
+ * @returns {string} Serialized URL.
+ */
 const serializePath = (path) =>
 {
   if (!path) return;
@@ -14,7 +26,7 @@ const serializePath = (path) =>
   ];
   const isExternalResource = rules.some(el => el);
 
-  const serializedURL = isExternalResource ? path : process.env.VITE_APP_API || process.env.API + path;
+  const serializedURL = isExternalResource ? path : baseURL || baseURL + path;
   return serializedURL.replace(/([^:]\/)\/+/g, "$1");
 };
 
@@ -57,23 +69,6 @@ api.defaults.paramsSerializer = (params) =>
     .join('&');
 };
 
-const showLoading = () =>
-{
-  Loading.show({
-    spinner: QSpinnerHourglass,
-    spinnerColor: 'white',
-    spinnerSize: 100,
-    backgroundColor: 'blue-grey-10',
-    message: 'Some important process is in progress. Hang on...',
-    messageColor: 'white',
-  });
-};
-
-const hideLoading = () =>
-{
-  Loading.hide();
-};
-
 const errorHandler = async (error) =>
 {
   if (error.config?.loading) hideLoading();
@@ -107,14 +102,7 @@ const errorHandler = async (error) =>
 
     if (!error.config._notified)
     {
-      Notify.create({
-        progress: true,
-        timeout: 2500,
-        type: 'negative',
-        position: 'top-right',
-        message: message || error.message,
-        html: true,
-      });
+      Notify(message || error.message, 'negative');
       error.config._notified = true;
     }
   }
@@ -134,6 +122,23 @@ const isAuthenticated = () =>
   return localStorage.getItem('access_token');
 }
 
+/**
+ * @typedef {Object} RequestArgs
+ * @property {string} path - URL or API endpoint.
+ * @property {Object} [data] - Data sent in the request (for POST, PUT, PATCH).
+ * @property {Object} [params] - Query string parameters (for GET, DELETE).
+ * @property {XMLHttpRequestResponseType} [responseType] - Type of response expected.
+ * @property {boolean} [loading=true] - Whether to display loading or not.
+ * @property {boolean} [errorNotification=true] - Whether to display error notification or not.
+ */
+
+/**
+ * @param {string} path - URL or API endpoint.
+ * @param {RequestArgs} args - Request options.
+ * @param {'get' | 'post' | 'patch' | 'put' | 'delete'} method - HTTP method.
+ * @returns {Promise<import('axios').AxiosResponse>}
+ */
+
 const makeRequest = async (method, args) =>
 {
   const { path, data, params, responseType, loading } = args;
@@ -148,16 +153,7 @@ const makeRequest = async (method, args) =>
 
   try
   {
-    const payload = {
-      method,
-      url: serializedPath,
-      data,
-      params,
-      responseType,
-      ...config,
-    }
-
-    const response = await api(payload);
+    const response = await api({ method, url: serializedPath, data, params, responseType, ...config });
 
     if (loading) hideLoading();
 
@@ -169,20 +165,46 @@ const makeRequest = async (method, args) =>
   }
 };
 
+/**
+ * Request POST.
+ * @param {RequestArgs} args - Argumen request.
+ * @returns {Promise<import('axios').AxiosResponse>}
+ */
 const post = (args) => makeRequest('post', { ...args, loading: true, errorNotification: true });
 
+/**
+ * Request GET.
+ * @param {RequestArgs} args - Argumen request.
+ * @returns {Promise<import('axios').AxiosResponse>}
+ */
 const get = (args) => makeRequest('get', { ...args, loading: true, errorNotification: true });
 
+/**
+ * Request PATCH.
+ * @param {RequestArgs} args - Argumen request.
+ * @returns {Promise<import('axios').AxiosResponse>}
+ */
 const patch = (args) => makeRequest('patch', { ...args, loading: true, errorNotification: true });
 
+/**
+ * Request PUT.
+ * @param {RequestArgs} args - Argumen request.
+ * @returns {Promise<import('axios').AxiosResponse>}
+ */
 const put = (args) => makeRequest('put', { ...args, loading: true, errorNotification: true });
 
+/**
+ * Request DELETE.
+ * @param {RequestArgs} args - Argumen request.
+ * @returns {Promise<import('axios').AxiosResponse>}
+ */
 const remove = (args) => makeRequest('delete', { ...args, loading: true, errorNotification: true });
 
 api.interceptors.response.use(
   (response) =>
   {
     if (response.config?.loading) hideLoading();
+
     return response;
   },
   errorHandler

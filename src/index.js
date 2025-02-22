@@ -1,4 +1,4 @@
 import api from './service/api.js';
-import User from './service/user.js';
+import user from './service/user.js';
 
-export default { api, User };
+export default { api, user };
