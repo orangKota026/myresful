@@ -11,12 +11,16 @@
         "rollup": "npx rollup -c",
         "test": "echo \"Write tests!\""
     },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/orangKota026/myresful.git"
+    },
     "keywords": [
         "RESTful",
         "API",
         "ECMAScript"
     ],
-    "author": "basuniproject@gmail.com",
+    "author": "Basuni Shibah <basuniproject@gmail.com>",
     "license": "ISC",
     "dependencies": {
         "axios": "^1.7.9",
