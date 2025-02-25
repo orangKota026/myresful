@@ -2,7 +2,7 @@ const MyNotify = (message, type = 'info', timeout = 3000, position = 'top-right'
 {
   if (window.innerWidth < 599)
   {
-    position = 'bottom-center';
+    position = 'top-center';
   }
 
   if (!document.querySelector('#my-notify'))
@@ -32,6 +32,7 @@ const MyNotify = (message, type = 'info', timeout = 3000, position = 'top-right'
           max-width: 90vw;
           width: fit-content;
       }
+      .my-top-center { top: 20px; left: 50%; transform: translateX(-50%); align-items: center; }
       .my-top-right { top: 20px; right: 20px; align-items: flex-end; }
       .my-top-left { top: 20px; left: 20px; align-items: flex-start; }
       .my-bottom-right { bottom: 20px; right: 20px; align-items: flex-end; }
@@ -56,13 +57,13 @@ const MyNotify = (message, type = 'info', timeout = 3000, position = 'top-right'
         overflow: hidden; 
         width: fit-content;        
         min-width: 250px;
-        max-width: 90vw;  
+        max-width: 60vw;  
         word-break: break-word;
         white-space: normal;
       }
       
       .my-icons {
-          font-family: 'Material Icons';  /* Tambahkan ini */
+          font-family: 'Material Icons';
           font-size: 20px;
           color: #fff;
           flex-shrink: 0; 
