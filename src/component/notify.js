@@ -57,7 +57,7 @@ const MyNotify = (message, type = 'info', timeout = 3000, position = 'top-right'
         overflow: hidden; 
         width: fit-content;        
         min-width: 250px;
-        max-width: 60vw;  
+        max-width: 80vw;  
         word-break: break-word;
         white-space: normal;
       }
