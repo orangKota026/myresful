@@ -12,6 +12,25 @@ const baseURL = (typeof process !== "undefined" && process?.env)
 const api = axios.create({ baseURL });
 
 /**
+ * Checks whether baseURL has been defined.
+ * @returns {{ valid: boolean, baseURL: string|null, message?: string }}
+ */
+const checkBaseURL = () => {
+  if (!baseURL || typeof baseURL !== 'string' || baseURL.trim() === '') {
+    return {
+      valid: false,
+      baseURL: null,
+      message: 'baseURL is empty or not defined. Set via VITE_APP_API, API env, or window.API_BASE_URL.'
+    };
+  }
+
+  return {
+    valid: true,
+    baseURL
+  };
+};
+
+/**
  * Serialize path to ensure there are no double slashes in the URL.
  * @param {string} path - URL or API endpoint.
  * @returns {string} Serialized URL.
@@ -26,7 +45,7 @@ const serializePath = (path) =>
   ];
   const isExternalResource = rules.some(el => el);
 
-  const serializedURL = isExternalResource ? path : baseURL || baseURL + path;
+  const serializedURL = isExternalResource ? path : (baseURL ? baseURL + path : path);
   return serializedURL.replace(/([^:]\/)\/+/g, "$1");
 };
 
@@ -220,4 +239,4 @@ api.interceptors.response.use(
   errorHandler
 );
 
-export default { serializePath, post, get, patch, put, remove };
+export default { serializePath, post, get, patch, put, remove, checkBaseURL };

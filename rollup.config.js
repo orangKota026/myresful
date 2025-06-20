@@ -8,6 +8,9 @@ export default {
             format: "umd",
             name: "myresful",
             sourcemap: true,
+			globals: {
+				axios: "axios"
+			}
         },
         {
             file: "dist/myresful.esm.js",
@@ -15,5 +18,6 @@ export default {
             sourcemap: true,
         },
     ],
+	external: ["axios"],
     plugins: [terser()],
 };

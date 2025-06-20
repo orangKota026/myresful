@@ -61,6 +61,17 @@ getData();
 
 Myresful supports multiple HTTP methods:
 
+###$ Check Base Path
+```javascript
+const status = myresful.api.checkBaseURL();
+
+if (!status.valid) {
+  console.warn("Base URL is not configured:", status.reason);
+} else {
+  console.log("Base URL detected:", status.baseURL);
+}
+```
+
 #### GET Request
 
 ```javascript
