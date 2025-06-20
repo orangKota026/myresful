@@ -13,7 +13,7 @@
         "preversion": "npm run build",
         "version": "npm run build && git add .",
         "postversion": "node scripts/version-helper.cjs",
-        "prepublishOnly": "npm run build"
+        "release": "npm version patch && npm publish --tag beta"
     },
     "repository": {
         "type": "git",
