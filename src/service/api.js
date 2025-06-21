@@ -15,8 +15,10 @@ const api = axios.create({ baseURL });
  * Checks whether baseURL has been defined.
  * @returns {{ valid: boolean, baseURL: string|null, message?: string }}
  */
-const checkBaseURL = () => {
-  if (!baseURL || typeof baseURL !== 'string' || baseURL.trim() === '') {
+const checkBaseURL = () =>
+{
+  if (!baseURL || typeof baseURL !== 'string' || baseURL.trim() === '')
+  {
     return {
       valid: false,
       baseURL: null,
@@ -147,7 +149,7 @@ const getHeaders = () =>
 
 const isAuthenticated = () =>
 {
-  return localStorage.getItem('access_token');
+  return User.isAuthenticated()
 }
 
 /**

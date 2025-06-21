@@ -1,6 +1,6 @@
 {
     "name": "myresful",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "description": "A package for handling API requests with built-in version check",
     "main": "dist/index.js",
     "browser": "dist/myresful.umd.js",
@@ -13,11 +13,11 @@
         "preversion": "npm run build",
         "version": "npm run build && git add .",
         "postversion": "node scripts/version-helper.cjs",
-        "release": "npm version patch && npm publish --tag beta"
+        "release": "npm publish --tag beta"
     },
     "repository": {
         "type": "git",
-        "url": "https://github.com/orangKota026/myresful.git"
+        "url": "git+https://github.com/orangKota026/myresful.git"
     },
     "keywords": [
         "RESTful",
@@ -25,7 +25,7 @@
         "ECMAScript"
     ],
     "author": "Basuni Shibah <basuniproject@gmail.com>",
-    "license": "ISC",
+    "license": "MIT",
     "dependencies": {
         "axios": "^1.7.9",
         "rollup": "^4.34.8",
