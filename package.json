@@ -17,12 +17,8 @@
     "build": "babel src -d dist && npm run rollup",
     "start": "node dist/index.js",
     "rollup": "npx rollup -c",
-    "test": "echo \"Write tests!\"",
-    "preversion": "npm run build",
-    "version": "npm run build && git add .",
-    "postversion": "node scripts/version-helper.cjs",
-    "release:beta": "npm version prerelease --preid=beta && npm publish --tag beta",
-    "release": "npm version patch && npm publish"
+    "release:beta": "npm run build && git add . && git commit -m \"chore: release beta\" || true && node scripts/version-helper.cjs && npm version prerelease --preid=beta && git push --follow-tags && npm publish --tag beta",
+    "release": "npm run build && git add . && git commit -m \"chore: release\" || true && node scripts/version-helper.cjs && npm version patch && git push --follow-tags && npm publish"
   },
   "repository": {
     "type": "git",
