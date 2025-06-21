@@ -22,7 +22,7 @@
     "version": "npm run build && git add .",
     "postversion": "node scripts/version-helper.cjs",
     "release:beta": "npm version prerelease --preid=beta && npm publish --tag beta",
-    "release": "npm run build && npm version patch && npm publish"
+    "release": "npm version patch && npm publish"
   },
   "repository": {
     "type": "git",
