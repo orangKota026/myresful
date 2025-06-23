@@ -1,6 +1,6 @@
 {
   "name": "myresful-beta",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A package for handling API requests with built-in version check",
   "main": "dist/index.js",
   "browser": "dist/myresful.umd.js",
@@ -8,6 +8,7 @@
   "exports": {
     "import": "./dist/myresful.esm.js",
     "require": "./dist/index.js",
+    "types": "./types.d.ts",
     "default": "./dist/index.js"
   },
   "types": "types.d.ts",

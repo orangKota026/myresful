@@ -3,10 +3,9 @@ import User from "./user.js";
 import MyNotify from "../component/notify.js";
 import { showLoading, hideLoading } from '../component/loading.js';
 
-/** @typedef {import('../../types.d.ts').RequestArgs} RequestArgs */
-/** @typedef {import('../../types.d.ts').BaseURLCheckResult} BaseURLCheckResult */
-
-/** @type {import('../../types.js').CustomWindow} */
+/** @typedef {import('../../types').RequestArgs} RequestArgs */
+/** @typedef {import('../../types').BaseURLCheckResult} BaseURLCheckResult */
+/** @type {import('../../types').CustomWindow} */
 const env = window;
 
 const baseURL = (typeof process !== "undefined" && process?.env)
@@ -38,11 +37,7 @@ const checkBaseURL = () =>
   };
 };
 
-/**
- * Serialize path to ensure there are no double slashes in the URL.
- * @param {string} path - URL or API endpoint.
- * @returns {string} Serialized URL.
- */
+/** @type {import('../../types').SerializePathFn} */
 const serializePath = (path) =>
 {
   if (!path) return '';
@@ -57,11 +52,7 @@ const serializePath = (path) =>
   return serializedURL.replace(/([^:]\/)\/+/g, "$1");
 };
 
-/**
- * Custom params serializer for Axios.
- * @param {Record<string, any>} params
- * @returns {string}
- */
+/** @type {import('../../types').ParamsSerializerFn} */
 api.defaults.paramsSerializer = (params) =>
 {
   /**
@@ -103,32 +94,13 @@ api.defaults.paramsSerializer = (params) =>
     .join('&');
 };
 
-/**
- * @typedef {Object} ErrorHandlerConfig
- * @property {boolean} [loading]
- * @property {boolean} [errorHandler]
- * @property {boolean} [_notified]
- */
-
-/**
- * @typedef {Object} ErrorHandlerError
- * @property {ErrorHandlerConfig} [config]
- * @property {Object} [response]
- * @property {any} [response.data]
- * @property {string} [message]
- * @property {string} [code]
- */
-
-/**
- * Handles errors from Axios responses.
- * @param {ErrorHandlerError} error
- * @returns {Promise<never>}
- */
+/** @type {import('../../types').ErrorHandlerFn} */
 const errorHandler = async (error) =>
 {
-  if (error.config?.loading) hideLoading();
+  const config = error.config;
+  if (config.loading) hideLoading();
 
-  if (error.config?.errorHandler)
+  if (config.errorNotification)
   {
     const errorData = error.response?.data;
 
@@ -187,23 +159,14 @@ const isAuthenticated = () =>
   return User.isAuthenticated()
 }
 
-/**
- * @typedef {import('axios').AxiosResponse} AxiosResponse
- * @typedef {'get'|'post'|'put'|'patch'|'delete'} HTTPMethod
- */
-
-/**
- * @param {HTTPMethod} method
- * @param {RequestArgs} args
- * @returns {Promise<AxiosResponse>}
- */
+/** @type {import('../../types').MakeRequestFn} */
 const makeRequest = async (method, args) =>
 {
   const { path, data, params, responseType, loading } = args;
 
   const serializedPath = serializePath(path);
 
-  /** @type {import('../../types.js').ExtendedAxiosRequestConfig} */
+  /** @type {import('../../types').ExtendedAxiosRequestConfig} */
   let config = { method, url: serializedPath, data, params }
 
   if (isAuthenticated()) config = { ...config, headers: getHeaders() }
@@ -230,45 +193,25 @@ const makeRequest = async (method, args) =>
   }
 };
 
-/**
- * Request POST.
- * @param {RequestArgs} args - Argumen request.
- * @returns {Promise<import('axios').AxiosResponse>}
- */
+/** @type {import('../../types').RequestMethodFn} */
 const post = (args) => makeRequest('post', { ...args, loading: true, errorNotification: true });
 
-/**
- * Request GET.
- * @param {RequestArgs} args - Argumen request.
- * @returns {Promise<import('axios').AxiosResponse>}
- */
+/** @type {import('../../types').RequestMethodFn} */
 const get = (args) => makeRequest('get', { ...args, loading: true, errorNotification: true });
 
-/**
- * Request PATCH.
- * @param {RequestArgs} args - Argumen request.
- * @returns {Promise<import('axios').AxiosResponse>}
- */
+/** @type {import('../../types').RequestMethodFn} */
 const patch = (args) => makeRequest('patch', { ...args, loading: true, errorNotification: true });
 
-/**
- * Request PUT.
- * @param {RequestArgs} args - Argumen request.
- * @returns {Promise<import('axios').AxiosResponse>}
- */
+/** @type {import('../../types').RequestMethodFn} */
 const put = (args) => makeRequest('put', { ...args, loading: true, errorNotification: true });
 
-/**
- * Request DELETE.
- * @param {RequestArgs} args - Argumen request.
- * @returns {Promise<import('axios').AxiosResponse>}
- */
+/** @type {import('../../types').RequestMethodFn} */
 const remove = (args) => makeRequest('delete', { ...args, loading: true, errorNotification: true });
 
 api.interceptors.response.use(
   (response) =>
   {
-    /** @type {import('../../types.js').ExtendedAxiosRequestConfig} */
+    /** @type {import('../../types').ExtendedAxiosRequestConfig} */
     const config = response.config;
 
     if (config.loading) hideLoading();
