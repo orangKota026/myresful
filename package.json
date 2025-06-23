@@ -10,8 +10,10 @@
     "require": "./dist/index.js",
     "default": "./dist/index.js"
   },
+  "types": "types.d.ts",
   "files": [
-    "dist/"
+    "dist/",
+    "types.d.ts"
   ],
   "scripts": {
     "build": "babel src -d dist && npm run rollup",
