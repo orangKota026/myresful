@@ -1,6 +1,6 @@
 {
-  "name": "myresful",
-  "version": "1.0.1-beta.3",
+  "name": "myresful-beta",
+  "version": "1.0.0",
   "description": "A package for handling API requests with built-in version check",
   "main": "dist/index.js",
   "browser": "dist/myresful.umd.js",
