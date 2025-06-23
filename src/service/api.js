@@ -3,17 +3,23 @@ import User from "./user.js";
 import MyNotify from "../component/notify.js";
 import { showLoading, hideLoading } from '../component/loading.js';
 
+/** @typedef {import('../../types.d.ts').RequestArgs} RequestArgs */
+/** @typedef {import('../../types.d.ts').BaseURLCheckResult} BaseURLCheckResult */
+
+/** @type {import('../../types.js').CustomWindow} */
+const env = window;
+
 const baseURL = (typeof process !== "undefined" && process?.env)
   ? (process.env.VITE_APP_API || process.env.API)
-  : (typeof window !== "undefined" && window.API_BASE_URL)
-    ? window.API_BASE_URL
+  : (typeof window !== "undefined" && env.API_BASE_URL)
+    ? env.API_BASE_URL
     : '';
 
 const api = axios.create({ baseURL });
 
 /**
  * Checks whether baseURL has been defined.
- * @returns {{ valid: boolean, baseURL: string|null, message?: string }}
+ * @returns {BaseURLCheckResult}
  */
 const checkBaseURL = () =>
 {
@@ -39,7 +45,7 @@ const checkBaseURL = () =>
  */
 const serializePath = (path) =>
 {
-  if (!path) return;
+  if (!path) return '';
 
   const rules = [
     path.indexOf("http://") === 0,
@@ -51,11 +57,18 @@ const serializePath = (path) =>
   return serializedURL.replace(/([^:]\/)\/+/g, "$1");
 };
 
-api.defaults.loading = true;
-api.defaults.errorHandler = true;
-
+/**
+ * Custom params serializer for Axios.
+ * @param {Record<string, any>} params
+ * @returns {string}
+ */
 api.defaults.paramsSerializer = (params) =>
 {
+  /**
+   * Encodes a parameter value for Axios.
+   * @param {any} value
+   * @returns {string}
+   */
   const encodeAxiosParam = (value) =>
   {
     let v = value;
@@ -90,6 +103,27 @@ api.defaults.paramsSerializer = (params) =>
     .join('&');
 };
 
+/**
+ * @typedef {Object} ErrorHandlerConfig
+ * @property {boolean} [loading]
+ * @property {boolean} [errorHandler]
+ * @property {boolean} [_notified]
+ */
+
+/**
+ * @typedef {Object} ErrorHandlerError
+ * @property {ErrorHandlerConfig} [config]
+ * @property {Object} [response]
+ * @property {any} [response.data]
+ * @property {string} [message]
+ * @property {string} [code]
+ */
+
+/**
+ * Handles errors from Axios responses.
+ * @param {ErrorHandlerError} error
+ * @returns {Promise<never>}
+ */
 const errorHandler = async (error) =>
 {
   if (error.config?.loading) hideLoading();
@@ -109,7 +143,8 @@ const errorHandler = async (error) =>
       {
         if (Array.isArray(errorData.message))
         {
-          errorData.message.forEach((msg) =>
+          /** @type {string[]} */
+          (errorData.message).forEach((msg) =>
           {
             MyNotify(
               `${errorData.error ? `<b>${errorData.error}</b><br>` : ''}${msg}`,
@@ -153,42 +188,41 @@ const isAuthenticated = () =>
 }
 
 /**
- * @typedef {Object} RequestArgs
- * @property {string} path - URL or API endpoint.
- * @property {Object} [data] - Data sent in the request (for POST, PUT, PATCH).
- * @property {Object} [params] - Query string parameters (for GET, DELETE).
- * @property {XMLHttpRequestResponseType} [responseType] - Type of response expected.
- * @property {boolean} [loading=true] - Whether to display loading or not.
- * @property {boolean} [errorNotification=true] - Whether to display error notification or not.
+ * @typedef {import('axios').AxiosResponse} AxiosResponse
+ * @typedef {'get'|'post'|'put'|'patch'|'delete'} HTTPMethod
  */
 
 /**
- * @param {string} path - URL or API endpoint.
- * @param {RequestArgs} args - Request options.
- * @param {'get' | 'post' | 'patch' | 'put' | 'delete'} method - HTTP method.
- * @returns {Promise<import('axios').AxiosResponse>}
+ * @param {HTTPMethod} method
+ * @param {RequestArgs} args
+ * @returns {Promise<AxiosResponse>}
  */
-
 const makeRequest = async (method, args) =>
 {
   const { path, data, params, responseType, loading } = args;
 
   const serializedPath = serializePath(path);
 
-  let config = {}
+  /** @type {import('../../types.js').ExtendedAxiosRequestConfig} */
+  let config = { method, url: serializedPath, data, params }
 
-  if (isAuthenticated()) config = { headers: getHeaders() }
+  if (isAuthenticated()) config = { ...config, headers: getHeaders() }
+
+  if (typeof responseType === 'string' && responseType)
+  {
+    config = { ...config, responseType };
+  }
 
   if (loading) showLoading();
 
   try
   {
-    const response = await api({ method, url: serializedPath, data, params, responseType, ...config });
+    const response = await api(config);
 
     if (loading) hideLoading();
 
     return response;
-  } catch (error)
+  } catch (/** @type {any} */ error)
   {
     if (loading) hideLoading();
     await errorHandler(error);
@@ -234,11 +268,14 @@ const remove = (args) => makeRequest('delete', { ...args, loading: true, errorNo
 api.interceptors.response.use(
   (response) =>
   {
-    if (response.config?.loading) hideLoading();
+    /** @type {import('../../types.js').ExtendedAxiosRequestConfig} */
+    const config = response.config;
 
+    if (config.loading) hideLoading();
     return response;
   },
   errorHandler
 );
 
-export default { serializePath, post, get, patch, put, remove, checkBaseURL };
+
+export default { serializePath, post, get, patch, put, remove, checkBaseURL };  

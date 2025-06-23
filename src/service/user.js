@@ -1,11 +1,4 @@
-/**
- * @typedef {Object} User
- * @property {string} id
- * @property {string} name
- * @property {string} email
- * @property {string} [role]
- * @property {string} [title]
- */
+/** @typedef {import('../../types').UserData} UserData */
 
 class User
 {
@@ -20,14 +13,14 @@ class User
 
   /**
    * Get the user object from local storage.
-   * @returns {User | null} The user object if available, otherwise null.
+   * @returns {UserData | null}
    */
   static get()
   {
     try
     {
       const user = localStorage.getItem('user');
-      return user ? JSON.parse(user) : null;
+      return user ? /** @type {UserData} */ (JSON.parse(user)) : null;
     } catch (err)
     {
       console.warn('Failed to parse user from localStorage', err);
@@ -37,7 +30,7 @@ class User
 
   /**
    * Get the roles of the user.
-   * @returns {string[]} An array of user roles.
+   * @returns {string[]}
    */
   static getRoles()
   {
@@ -59,8 +52,8 @@ class User
 
   /**
    * Check if the user has one of the specified roles.
-   * @param {string | string[]} role - A role or an array of roles to check.
-   * @returns {boolean} True if the user has one of the roles, otherwise false.
+   * @param {string | string[]} role
+   * @returns {boolean}
    */
   static hasRoles(role)
   {
@@ -70,12 +63,12 @@ class User
 
   /**
    * Logout the user and redirect to a specified path or login page.
-   * @param {string} [path='/login'] - The path to redirect to after logout.
+   * @param {string} [path] - The path to redirect to after logout.
    */
   static logout(path = 'login')
   {
     localStorage.clear();
-    document.location = path ? `/#/${path}` : '/#/login';
+    window.location.href = `/#/${path}`;
   }
 }
 

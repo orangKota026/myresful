@@ -1,0 +1,21 @@
+{
+	"compilerOptions": {
+		"checkJs": true,
+		"allowJs": true,
+		"baseUrl": ".",
+		"paths": {
+			"@types/*": ["types/*"]
+		},
+		"outDir": "./dist",
+		"declaration": true,
+		"declarationDir": "./types",
+		"emitDeclarationOnly": true,
+		"module": "esnext",
+		"target": "esnext",
+		"moduleResolution": "node",
+		"strict": true,
+		"esModuleInterop": true,
+		"skipLibCheck": true
+	},
+	"include": ["src/**/*.js", "types.d.ts"]
+}
