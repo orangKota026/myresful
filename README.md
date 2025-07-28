@@ -112,7 +112,7 @@ await api.post({
 	path: URL,
 	data: {
 		name: "Basuni Shibah",
-		email: "basuniproject@gmail.com"
+		email: "projectbasuni@gmail.com"
 	}
 });
 ```
@@ -261,7 +261,7 @@ This project is licensed under the ISC License – see the [LICENSE](LICENSE) fi
 ## Author
 
 **Basuniproject**  
-[basuniproject@gmail.com](mailto:basuniproject@gmail.com)
+[projectbasuni@gmail.com](mailto:projectbasuni@gmail.com)
 
 ## 🤝 Contributing
 
