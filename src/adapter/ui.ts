@@ -13,7 +13,7 @@ export const AdapterUI: UIAdapter = {
 
         if ((isNode && isBrowser) || isBrowser)
         {
-            notify(isBrowser, message, type)
+            notify(isBrowser, message, 'negative', 3000, 'top-right')
         } else
         {
             console.log(`${prefix} ${message}`);
@@ -40,40 +40,3 @@ export const AdapterUI: UIAdapter = {
         }
     }
 }
-// export class AdapterUI implements UIAdapter
-// {
-//     notify(message: string, type: 'info' | 'error' | 'success' | 'warning' = 'info'): void
-//     {
-
-
-//         if ((isNode && isBrowser) || isBrowser)
-//         {
-//             notify(isBrowser, message, type)
-//         } else
-//         {
-//             console.log(`${prefix} ${message}`);
-//         }
-//     }
-
-//     async showLoading(message: string): Promise<void>
-//     {
-//         if ((isNode && isBrowser) || isBrowser)
-//         {
-//             showLoading(isBrowser)
-//         } else
-//         {
-//             console.log(`[LOADING] ${message}`);
-//         }
-//     }
-
-//     async hideLoading(): Promise<void>
-//     {
-//         if ((isNode && isBrowser) || isBrowser)
-//         {
-//             await hideLoading(isBrowser)
-//         } else
-//         {
-//             console.log(`[LOADING DONE]`);
-//         }
-//     }
-// }

@@ -60,6 +60,7 @@
 
 		<!-- Tombol CRUD -->
 		<div>
+			<button onclick="checkBaseURL()">Check Base URL</button>
 			<button onclick="createPost()">Create</button>
 			<button onclick="readPost()">Read</button>
 			<button onclick="updatePost()">Update</button>
@@ -72,13 +73,18 @@
 
 		<script>
 			// Inisialisasi API base URL jika diperlukan
-			const API_BASE_URL = "https://jsonplaceholder.typicode.com";
-			window.localStorage.setItem("MYRESFUL_API_BASE_URL", API_BASE_URL);
-
-			// Akses ke API dari export default UMD
-			const api = window.myresful.api;
-
+			window.API_BASE_URL = "https://jsonplaceholder.typicode.com";
 			const resultEl = document.getElementById("result");
+
+			async function checkBaseURL() {
+				resultEl.innerText = "Memeriksa Base URL...";
+				try {
+					const result = await window.myresful.api.checkBaseURL(true); // true = debug/log
+					resultEl.innerText = "✅ Base URL OK:\n" + JSON.stringify(result, null, 2);
+				} catch (err) {
+					resultEl.innerText = "❌ Gagal cek Base URL:\n" + (err?.message || err);
+				}
+			}
 
 			function getPostId() {
 				const id = document.getElementById("postId").value.trim();
@@ -89,7 +95,7 @@
 			async function createPost() {
 				resultEl.innerText = "Membuat post...";
 				try {
-					const response = await api.post({
+					const response = await window.myresful.api.post({
 						path: "/posts",
 						data: {
 							title: "Judul Baru",
@@ -107,7 +113,7 @@
 				try {
 					const id = getPostId();
 					resultEl.innerText = "Mengambil post ID " + id + "...";
-					const response = await api.get({ path: `/posts/${id}` });
+					const response = await window.myresful.api.get({ path: `/posts/${id}` });
 					resultEl.innerText = "Post berhasil diambil:\n" + JSON.stringify(response.data, null, 2);
 				} catch (error) {
 					showError(error);
@@ -118,7 +124,7 @@
 				try {
 					const id = getPostId();
 					resultEl.innerText = "Memperbarui post ID " + id + "...";
-					const response = await api.put({
+					const response = await window.myresful.api.put({
 						path: `/posts/${id}`,
 						data: {
 							title: "Judul Diubah",
@@ -136,7 +142,7 @@
 				try {
 					const id = getPostId();
 					resultEl.innerText = "Menghapus post ID " + id + "...";
-					const response = await api.remove({ path: `/posts/${id}` });
+					const response = await window.myresful.api.remove({ path: `/posts/${id}` });
 					resultEl.innerText = `Post ID ${id} berhasil dihapus (simulasi).`;
 				} catch (error) {
 					showError(error);
@@ -146,7 +152,7 @@
 			async function getErrorDemo() {
 				resultEl.innerText = "Mengakses endpoint tidak valid...";
 				try {
-					const response = await api.get({ path: "/invalid-path" });
+					const response = await window.myresful.api.get({ path: "/invalid-path" });
 					resultEl.innerText = "Hasil:\n" + JSON.stringify(response.data, null, 2);
 				} catch (error) {
 					showError(error);
