@@ -1,17 +1,23 @@
-# Myresful
+# 🛠️ MyResful
 
-**Myresful** is a package for handling API requests with a built-in version check. It is designed to simplify working with RESTful APIs in Node.js while ensuring that the required Node.js version is met.
+![npm](https://img.shields.io/npm/v/myresful)
+![License](https://img.shields.io/npm/l/myresful)
+![Node.js](https://img.shields.io/node/v/myresful)
+![Issues](https://img.shields.io/github/issues/orangKota026/myresful)
 
-## Features
+**MyResful** is a lightweight wrapper around `axios`, designed for modern JavaScript/TypeScript applications. It includes features like:
 
--   Handle RESTful API requests using `axios`.
--   Built-in Node.js version check.
--   Easily configurable for various API endpoints.
--   Supports Node.js versions 14, 16, 18, and 20.
--   Supports automatic request serialization.
--   Customizable error handling and notifications.
+-   Pluggable UI adapter (`loading`, `notify`)
+-   Pluggable Auth adapter (store-aware JWT/etc token)
+-   Path & query param serialization
+-   Payload size limitation
+-   Auto logout on 401
+-   Custom `paramsSerializer`
+-   Modular and easy to integrate
 
-## Installation
+---
+
+## 📦 Installation
 
 To install the package, use npm or yarn:
 
@@ -27,82 +33,95 @@ npm install myresful
 yarn add myresful
 ```
 
-## Usage
+---
 
-### 1. Import the Package
+## 🚀 Features
 
-Use `myresful.api` to send an API request and `myresful.user` for user authentication handling.
+-   Built-in `post`, `get`, `put`, `patch`, `delete` methods using `axios`
+-   Dynamic adapters for:
+    -   ✅ Auth (JWT token & logout)
+    -   ✅ UI (loading spinner, notifications)
+-   Path serialization and validation
+-   Payload size control
+-   Centralized error handling
+
+---
+
+## 🔌 Global Adapter Setup
+
+Configure **UI** or **Auth** and **Compress** override default adapters before use:
 
 ```javascript
-import myresful from "myresful";
+import api from "myresful";
+import { useAuthStore } from "@/stores/auth";
+import { useUiStore } from "@/stores/ui";
+```
 
-// Define the API URL
-const apiUrl = "https://api.example.com/data";
+### 1. Configure **UI**
 
-async function getData() {
-	try {
-		const response = await myresful.api.get({
-			path: apiUrl,
-			headers: {
-				"Content-Type": "application/json"
-			}
-		});
-
-		console.log(response.data);
-	} catch (error) {
-		console.error("Error making API request:", error);
+```javascript
+api.setUIAdapter({
+	showLoading: () => useUiStore().start(),
+	hideLoading: () => useUiStore().stop(),
+	notify: (msg, type = "negative") => {
+		useUiStore().notify({ message: msg, type });
 	}
-}
-
-getData();
+});
 ```
 
-### 2. API Request Methods
+### 2. Configure **AUTH**
 
-Myresful supports multiple HTTP methods:
-
-###$ Check Base Path
 ```javascript
-const status = myresful.api.checkBaseURL();
-
-if (!status.valid) {
-  console.warn("Base URL is not configured:", status.reason);
-} else {
-  console.log("Base URL detected:", status.baseURL);
-}
+api.setAuthAdapter({
+	isAuthenticated: () => useAuthStore().token,
+	logout: () => useAuthStore().logout()
+});
 ```
 
-#### GET Request
+### 3. Configure **COMPRESS**
 
 ```javascript
-const response = await myresful.api.get({
-	path: apiUrl,
+api.setCompressAdapter({
+	isUse: () => true, // if you want to compress POST, PUT, or PATCH request bodies
+	useBlob: () => true, // return true to use FormData (with Blob)
+	method: (jsonStr, useBlob, filename) => {
+		return method(jsonStr, useBlob, filename);
+	} // optional custom compress method
+});
+```
+
+---
+
+## 📥 Example Usage
+
+### GET Request
+
+```javascript
+await api.get({
+	path: URL,
 	params: {
 		search: "query"
 	}
 });
 ```
 
-#### POST Request
+### POST Request
 
 ```javascript
-const response = await myresful.api.post({
-	path: apiUrl,
+await api.post({
+	path: URL,
 	data: {
-		name: "John Doe",
-		email: "john@example.com"
-	},
-	headers: {
-		"Content-Type": "application/json"
+		name: "Basuni Shibah",
+		email: "basuniproject@gmail.com"
 	}
 });
 ```
 
-#### PUT Request
+### PUT Request
 
 ```javascript
-const response = await myresful.api.put({
-	path: apiUrl,
+await api.put({
+	path: URL,
 	data: {
 		id: 1,
 		status: "active"
@@ -110,118 +129,88 @@ const response = await myresful.api.put({
 });
 ```
 
-#### PATCH Request
+### PATCH Request
 
 ```javascript
-const response = await myresful.api.patch({
-	path: apiUrl,
+await api.patch({
+	path: URL,
 	data: {
-		status: "updated"
+		id: 1,
+		status: "active"
 	}
 });
 ```
 
-#### DELETE Request
+### DELETE Request
 
 ```javascript
-const response = await myresful.api.remove({
-	path: apiUrl
+await api.remove({ path: URL + PARAMS });
+```
+
+---
+
+## 🧠 API Reference
+
+### RequestArgs (used in `get`, `post`, etc.)
+
+| Field               | Type                       | Description                                                      |
+| ------------------- | -------------------------- | ---------------------------------------------------------------- |
+| `path`              | `string`                   | Required. API endpoint (relative or full URL). Will be validated |
+| `params`            | `object` (optional)        | Query parameters                                                 |
+| `data`              | `object` (optional)        | Body payload                                                     |
+| `headers`           | `AxiosHeaders` (optional)  | Custom headers                                                   |
+| `loading`           | `boolean` (default: true)  | Show UI loading spinner                                          |
+| `errorNotification` | `boolean` (default: true)  | Show error toast                                                 |
+| `responseType`      | `string` (optional)        | `'blob'`, `'json'`, etc                                          |
+| `debug`             | `boolean` (default: false) | Log request info                                                 |
+
+---
+
+## 🛠️ Utilities
+
+### 🔐 Auth Adapter
+
+Use `setAuthAdapter()` to provide your own JWT getter and logout logic:
+
+```ts
+api.setAuthAdapter({
+	isAuthenticated: () => "your_token",
+	logout: () => {
+		// e.g., redirect to login
+	}
 });
 ```
 
-## Configuration Options
+Token will be sent via `Authorization: Bearer <token>` header. On `401 Unauthorized`, `logout()` is triggered automatically.
 
-| Option         | Type   | Description                                                 |
-| -------------- | ------ | ----------------------------------------------------------- |
-| `method`       | String | HTTP method (GET, POST, PUT, DELETE, PATCH)                 |
-| `headers`      | Object | Custom headers (e.g., authentication tokens, content types) |
-| `data`         | Object | Request payload (for POST, PUT, PATCH)                      |
-| `params`       | Object | Query parameters (for GET requests)                         |
-| `responseType` | String | Response type (e.g., `json`, `text`)                        |
+### `checkBaseURL(debug?: boolean): boolean`
 
-Example with full options:
+Checks if baseURL is valid.
 
-```javascript
-const response = await myresful.api.get({
-	path: apiUrl,
-	params: { page: 1, limit: 10 },
-	headers: { Authorization: "Bearer token" },
-	responseType: "json"
-});
-```
+### `serializePath(path: string, request: serializePathRequest, debug?: boolean): Promise<string>`
 
-## Error Handling
+Serializes and validates request path.
 
-Myresful provides a built-in error handler. If a request fails, it automatically logs the error and can show a notification.
+### 🔥 Error Handling
 
-```javascript
-try {
-	const response = await myresful.api.get({ path: apiUrl });
-	console.log(response.data);
-} catch (error) {
-	console.error("API Error:", error);
-}
-```
+All errors will be intercepted. If `errorNotification` is enabled (default), a toast/notify will appear.
 
-### 3. Authentication Management with `myresful.user`
+-   `401 Unauthorized` will trigger `logout()` from your auth adapter
+-   Network errors and timeouts will show a default message
+-   Binary response errors will be parsed and shown if possible
 
-`myresful.user` provides methods for managing authentication status and user roles.
+---
 
-#### Check if the user is authenticated:
+## ⚠️ Notes
 
-```javascript
-if (myresful.user.isAuthenticated()) {
-	console.log("User is logged in");
-} else {
-	console.log("User is not logged in");
-}
-```
+-   `isAuthenticated()` must be configured for auto-token handling.
+-   Large payloads can be controlled with `maxBodyLength` (in MB).
+-   Paths are automatically serialized and validated.
+-   Use `setUIAdapter()` to integrate your custom loading and notification handlers
+-   Use `setAuthAdapter()` to provide JWT retrieval and automatic logout on 401
+-   Use `setCompressAdapter()` to enable request payload compression. Set `isUse()` to true for applicable HTTP methods.
 
-#### Get current user data:
-
-```javascript
-const user = myresful.user.get();
-console.log(user);
-```
-
-#### Get user roles:
-
-```javascript
-const roles = myresful.user.getRoles();
-console.log("User roles:", roles);
-```
-
-#### Check if the user has a specific role:
-
-```javascript
-if (myresful.user.hasRoles(["admin", "editor"])) {
-	console.log("User has required roles");
-} else {
-	console.log("User does not have required roles");
-}
-```
-
-#### Logout the user:
-
-```javascript
-myresful.user.logout();
-```
-
-or redirect after logout:
-
-```javascript
-myresful.user.logout("home");
-```
-
-## Dependencies
-
--   **axios**: A promise-based HTTP client for the browser and Node.js.
-
-## Development Dependencies
-
--   **@babel/cli**: CLI for Babel to transpile the code.
--   **@babel/core**: Babel compiler core.
--   **@babel/preset-env**: Babel preset to compile modern JavaScript to a compatible version for your environment.
+---
 
 ## Supported Node.js Versions
 
@@ -231,12 +220,50 @@ This package supports the following versions of Node.js:
 -   Node.js 16.x.x
 -   Node.js 18.x.x
 -   Node.js 20.x.x
+-   Node.js 22.x.x
+
+---
+
+## 🧾 TypeScript Support
+
+`myresful` is built with full TypeScript support, including type-safe arguments and response inference.
+
+---
+
+## Dependencies
+
+| Package                                        | Version   | Description                                                                |
+| ---------------------------------------------- | --------- | -------------------------------------------------------------------------- |
+| [`axios`](https://www.npmjs.com/package/axios) | `^1.10.0` | HTTP client untuk menangani request API.                                   |
+| [`pako`](https://www.npmjs.com/package/pako)   | `^2.1.0`  | Library untuk kompresi/dekompresi gzip (digunakan untuk kompresi payload). |
+
+---
+
+## Development Dependencies
+
+| Package                                                                                    | Version    | Description                                        |
+| ------------------------------------------------------------------------------------------ | ---------- | -------------------------------------------------- |
+| [`typescript`](https://www.npmjs.com/package/typescript)                                   | `^5.8.3`   | Bahasa pemrograman untuk menulis kode library.     |
+| [`tsup`](https://www.npmjs.com/package/tsup)                                               | `^8.5.0`   | Bundler modern untuk TypeScript.                   |
+| [`rollup`](https://www.npmjs.com/package/rollup)                                           | `^4.45.0`  | Bundler untuk output UMD.                          |
+| [`rollup-plugin-typescript2`](https://www.npmjs.com/package/rollup-plugin-typescript2)     | `^0.36.0`  | Plugin Rollup untuk mengompilasi TypeScript.       |
+| [`@rollup/plugin-commonjs`](https://www.npmjs.com/package/@rollup/plugin-commonjs)         | `^28.0.6`  | Plugin untuk mendukung CommonJS modules di Rollup. |
+| [`@rollup/plugin-node-resolve`](https://www.npmjs.com/package/@rollup/plugin-node-resolve) | `^16.0.1`  | Plugin Rollup untuk resolve module `node_modules`. |
+| [`@types/node`](https://www.npmjs.com/package/@types/node)                                 | `^24.0.13` | Type definitions untuk Node.js.                    |
+| [`@types/pako`](https://www.npmjs.com/package/@types/pako)                                 | `^2.0.3`   | Type definitions untuk Pako.                       |
+
+---
 
 ## License
 
-This project is licensed under the ISC License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the ISC License – see the [LICENSE](LICENSE) file for details.
 
 ## Author
 
 **Basuniproject**  
 [basuniproject@gmail.com](mailto:basuniproject@gmail.com)
+
+## 🤝 Contributing
+
+Feel free to open an issue or submit a pull request if you find a bug, have a suggestion, or want to contribute to this project.  
+Your contributions are always welcome and appreciated! 🚀

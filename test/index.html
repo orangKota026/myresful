@@ -3,41 +3,159 @@
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<title>Test MyResful</title>
+		<title>Demo MyResful CRUD</title>
 
-		<script>
-			window.API_BASE_URL = "http://localhost:7001/"; // Dummy API for testing
-		</script>
-
-		<!-- Load Axios -->
+		<!-- Load Axios dan MyResful (UMD) -->
 		<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+		<script src="../dist/index.umd.js"></script>
 
-		<!-- Load MyResful (Make sure this path is correct) -->
-		<script src="../dist/myresful.umd.js"></script>
+		<!-- Gaya CSS -->
+		<style>
+			body {
+				font-family: Arial, sans-serif;
+				margin: 40px;
+				background-color: #f7f9fc;
+				color: #333;
+			}
+			h1 {
+				color: #007acc;
+			}
+			button {
+				background-color: #007acc;
+				color: white;
+				border: none;
+				padding: 10px 20px;
+				margin: 5px 5px 5px 0;
+				border-radius: 5px;
+				cursor: pointer;
+				font-size: 14px;
+			}
+			button:hover {
+				background-color: #005f99;
+			}
+			pre {
+				margin-top: 20px;
+				padding: 15px;
+				background-color: #eaeaea;
+				border-radius: 5px;
+				overflow: auto;
+				white-space: pre-wrap;
+				word-break: break-word;
+				max-height: 400px;
+			}
+			input {
+				padding: 8px;
+				margin-bottom: 10px;
+				width: 200px;
+				border: 1px solid #ccc;
+				border-radius: 4px;
+			}
+		</style>
 	</head>
 	<body>
-		<h1>Test MyResful API</h1>
-		<button onclick="fetchData()">Fetch Data</button>
+		<h1>🔄 Demo CRUD dengan MyResful</h1>
 
-		<!-- Add a div to display the results -->
-		<pre id="result"></pre>
+		<!-- Form Input ID -->
+		<input type="number" id="postId" placeholder="ID Post (contoh: 1)" />
+
+		<!-- Tombol CRUD -->
+		<div>
+			<button onclick="createPost()">Create</button>
+			<button onclick="readPost()">Read</button>
+			<button onclick="updatePost()">Update</button>
+			<button onclick="deletePost()">Delete</button>
+			<button onclick="getErrorDemo()">Get Error (404)</button>
+		</div>
+
+		<!-- Output -->
+		<pre id="result">Klik salah satu tombol untuk mulai.</pre>
 
 		<script>
-			async function fetchData() {
-				try {
-					// Make sure MyResful is defined
-					if (typeof myresful === "undefined") {
-						console.error("myresful not found! Make sure dist/myresful.umd.js is loaded.");
-						return;
-					}
+			// Inisialisasi API base URL jika diperlukan
+			const API_BASE_URL = "https://jsonplaceholder.typicode.com";
+			window.localStorage.setItem("MYRESFUL_API_BASE_URL", API_BASE_URL);
 
-					// Call API with MyResful
-					const response = await myresful.api.post({ path: "http://localhost:7001/auth/verify", data: { token: "123456" } });
-					document.getElementById("result").innerText = JSON.stringify(response.data, null, 2);
+			// Akses ke API dari export default UMD
+			const api = window.myresful.api;
+
+			const resultEl = document.getElementById("result");
+
+			function getPostId() {
+				const id = document.getElementById("postId").value.trim();
+				if (!id) throw new Error("ID tidak boleh kosong!");
+				return id;
+			}
+
+			async function createPost() {
+				resultEl.innerText = "Membuat post...";
+				try {
+					const response = await api.post({
+						path: "/posts",
+						data: {
+							title: "Judul Baru",
+							body: "Ini adalah isi post baru.",
+							userId: 1
+						}
+					});
+					resultEl.innerText = "Post berhasil dibuat:\n" + JSON.stringify(response.data, null, 2);
 				} catch (error) {
-					console.error("Error while retrieving data:", error);
-					document.getElementById("result").innerText = "Failed to fetch data!";
+					showError(error);
 				}
+			}
+
+			async function readPost() {
+				try {
+					const id = getPostId();
+					resultEl.innerText = "Mengambil post ID " + id + "...";
+					const response = await api.get({ path: `/posts/${id}` });
+					resultEl.innerText = "Post berhasil diambil:\n" + JSON.stringify(response.data, null, 2);
+				} catch (error) {
+					showError(error);
+				}
+			}
+
+			async function updatePost() {
+				try {
+					const id = getPostId();
+					resultEl.innerText = "Memperbarui post ID " + id + "...";
+					const response = await api.put({
+						path: `/posts/${id}`,
+						data: {
+							title: "Judul Diubah",
+							body: "Isi telah diperbarui.",
+							userId: 1
+						}
+					});
+					resultEl.innerText = "Post berhasil diperbarui:\n" + JSON.stringify(response.data, null, 2);
+				} catch (error) {
+					showError(error);
+				}
+			}
+
+			async function deletePost() {
+				try {
+					const id = getPostId();
+					resultEl.innerText = "Menghapus post ID " + id + "...";
+					const response = await api.remove({ path: `/posts/${id}` });
+					resultEl.innerText = `Post ID ${id} berhasil dihapus (simulasi).`;
+				} catch (error) {
+					showError(error);
+				}
+			}
+
+			async function getErrorDemo() {
+				resultEl.innerText = "Mengakses endpoint tidak valid...";
+				try {
+					const response = await api.get({ path: "/invalid-path" });
+					resultEl.innerText = "Hasil:\n" + JSON.stringify(response.data, null, 2);
+				} catch (error) {
+					showError(error);
+				}
+			}
+
+			function showError(error) {
+				console.error(error);
+				resultEl.innerText = "❌ Terjadi kesalahan:\n" + (error?.message || error);
 			}
 		</script>
 	</body>
