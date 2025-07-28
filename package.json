@@ -19,6 +19,11 @@
     "type": "git",
     "url": "git+https://github.com/orangKota026/myresful.git"
   },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
   "keywords": [
     "RESTful",
     "API",
