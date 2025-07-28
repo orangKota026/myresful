@@ -1,6 +1,6 @@
 {
   "name": "myresful",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A package for handling API requests with built-in version check",
   "type": "module",
   "main": "./dist/index.js",
